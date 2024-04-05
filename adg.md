@@ -1,4 +1,7 @@
 http:
+  pprof:
+    port: 6060
+    enabled: false
   address: 0.0.0.0:3000
   session_ttl: 720h
 users:
@@ -9,31 +12,24 @@ block_auth_min: 15
 http_proxy: ""
 language: zh-cn
 theme: auto
-debug_pprof: false
 dns:
   bind_hosts:
     - 0.0.0.0
   port: 1745
   anonymize_client_ip: false
-  protection_enabled: true
-  blocking_mode: default
-  blocking_ipv4: ""
-  blocking_ipv6: ""
-  blocked_response_ttl: 10
-  protection_disabled_until: null
-  parental_block_host: family-block.dns.adguard.com
-  safebrowsing_block_host: standard-block.dns.adguard.com
   ratelimit: 0
+  ratelimit_subnet_len_ipv4: 24
+  ratelimit_subnet_len_ipv6: 56
   ratelimit_whitelist: []
   refuse_any: false
   upstream_dns:
-    - 223.5.5.5
+    - 192.168.31.3:6053
   upstream_dns_file: ""
   bootstrap_dns:
     - 119.29.29.29
     - 223.5.5.5
-  all_servers: false
-  fastest_addr: false
+  fallback_dns: []
+  upstream_mode: load_balance
   fastest_timeout: 1s
   allowed_clients: []
   disallowed_clients: []
@@ -44,31 +40,32 @@ dns:
   trusted_proxies:
     - 127.0.0.0/8
     - ::1/128
-  cache_size: 4194304
+  cache_size: 0
   cache_ttl_min: 0
   cache_ttl_max: 0
-  cache_optimistic: true
+  cache_optimistic: false
   bogus_nxdomain: []
   aaaa_disabled: false
   enable_dnssec: false
-  edns_client_subnet: false
+  edns_client_subnet:
+    custom_ip: ""
+    enabled: false
+    use_custom: false
   max_goroutines: 300
+  handle_ddr: true
   ipset: []
-  filtering_enabled: true
-  filters_update_interval: 24
-  parental_enabled: false
-  safesearch_enabled: false
-  safebrowsing_enabled: false
-  safebrowsing_cache_size: 1048576
-  safesearch_cache_size: 1048576
-  parental_cache_size: 1048576
-  cache_time: 30
-  rewrites: []
-  blocked_services: []
+  ipset_file: ""
+  bootstrap_prefer_ipv6: false
   upstream_timeout: 10s
   private_networks: []
-  use_private_ptr_resolvers: true
+  use_private_ptr_resolvers: false
   local_ptr_upstreams: []
+  use_dns64: false
+  dns64_prefixes: []
+  serve_http3: false
+  use_http3_upstreams: false
+  serve_plain_dns: true
+  hostsfile_enabled: true
 tls:
   enabled: false
   server_name: ""
@@ -83,47 +80,60 @@ tls:
   private_key: ""
   certificate_path: ""
   private_key_path: ""
+  strict_sni_check: false
+querylog:
+  dir_path: ""
+  ignored: []
+  interval: 2160h
+  size_memory: 1000
+  enabled: true
+  file_enabled: true
+statistics:
+  dir_path: ""
+  ignored: []
+  interval: 24h
+  enabled: true
 filters:
-  - enabled: true
-    url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt
-    name: AdGuard Base filter
-    id: 1706005735
-  - enabled: true
-    url: https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt
-    name: AdGuard Chinese filter
-    id: 1706005736
   - enabled: true
     url: https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
     name: AdGuard DNS filter
-    id: 1706005737
+    id: 1228750870
+  - enabled: true
+    url: http://sub.adtchrome.com/adt-chinalist-easylist.txt
+    name: 广告终结者使用的拦截规则，基于ChinaList+EasyList修正维护
+    id: 139789181
   - enabled: true
     url: https://easylist-downloads.adblockplus.org/easylist.txt
-    name: EasyList
-    id: 1706005738
+    name: EasyList-去除国际网页中大多数广告，包括不需要的框架、图像和对象
+    id: 139789112
   - enabled: true
     url: https://easylist-downloads.adblockplus.org/easylistchina.txt
-    name: EasyList China
-    id: 1706005739
+    name: EasyList China-EasyList针对国内的补充规则
+    id: 139789121
   - enabled: true
-    url: https://easylist-downloads.adblockplus.org/easyprivacy.txt
-    name: EasyPrivacy
-    id: 1706005740
-  - enabled: true
-    url: https://raw.githubusercontent.com/badmojr/1Hosts/master/Lite/adblock.txt
-    name: 1Hosts (Lite)
-    id: 1706005741
-  - enabled: true
-    url: https://raw.githubusercontent.com/Cats-Team/AdRules/main/dns.txt
-    name: AdRules DNS List
-    id: 1706005742
+    url: https://adaway.org/hosts.txt
+    name: Adaway HOST
+    id: 139789187
   - enabled: true
     url: https://adguardteam.github.io/HostlistsRegistry/assets/filter_49.txt
     name: HaGeZi's Ultimate Blocklist
-    id: 1706005743
+    id: 1711959316
+  - enabled: true
+    url: https://adguardteam.github.io/HostlistsRegistry/assets/filter_24.txt
+    name: 1Hosts (Lite)
+    id: 1711959317
+  - enabled: true
+    url: https://adguardteam.github.io/HostlistsRegistry/assets/filter_29.txt
+    name: 'CHN: AdRules DNS List'
+    id: 1711959318
   - enabled: true
     url: https://adguardteam.github.io/HostlistsRegistry/assets/filter_21.txt
     name: 'CHN: anti-AD'
-    id: 1706005744
+    id: 1711959319
+  - enabled: true
+    url: https://bitcion.github.io/zaixiantuoguan/GFWLISTnoIPv6.txt
+    name: v6
+    id: 1712102519
 whitelist_filters: []
 user_rules:
   - '@@||taobao.com^$important'
@@ -151,6 +161,7 @@ user_rules:
 dhcp:
   enabled: false
   interface_name: ""
+  local_domain_name: lan
   dhcpv4:
     gateway_ip: ""
     subnet_mask: ""
@@ -164,12 +175,54 @@ dhcp:
     lease_duration: 86400
     ra_slaac_only: false
     ra_allow_slaac: false
-clients: []
-log_compress: false
-log_localtime: false
-log_max_backups: 0
-log_max_size: 100
-log_max_age: 3
-log_file: ""
-verbose: false
-schema_version: 10
+filtering:
+  blocking_ipv4: ""
+  blocking_ipv6: ""
+  blocked_services:
+    schedule:
+      time_zone: Local
+    ids: []
+  protection_disabled_until: null
+  safe_search:
+    enabled: false
+    bing: true
+    duckduckgo: true
+    google: true
+    pixabay: true
+    yandex: true
+    youtube: true
+  blocking_mode: default
+  parental_block_host: family-block.dns.adguard.com
+  safebrowsing_block_host: standard-block.dns.adguard.com
+  rewrites: []
+  safebrowsing_cache_size: 1048576
+  safesearch_cache_size: 1048576
+  parental_cache_size: 1048576
+  cache_time: 30
+  filters_update_interval: 24
+  blocked_response_ttl: 10
+  filtering_enabled: true
+  parental_enabled: false
+  safebrowsing_enabled: false
+  protection_enabled: true
+clients:
+  runtime_sources:
+    whois: true
+    arp: true
+    rdns: false
+    dhcp: true
+    hosts: true
+  persistent: []
+log:
+  file: ""
+  max_backups: 0
+  max_size: 100
+  max_age: 3
+  compress: false
+  local_time: false
+  verbose: false
+os:
+  group: ""
+  user: ""
+  rlimit_nofile: 0
+schema_version: 28
